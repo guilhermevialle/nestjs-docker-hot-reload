@@ -1,0 +1,35 @@
+services:
+  api:
+    container_name: nest_api_dev
+    build:
+      context: .
+      dockerfile: docker/dev/dockerfile
+    ports:
+      - '3000:3000'
+    networks:
+      - internal
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file: .env
+    command: nest start --env-file .env --watch --poll=1000
+    depends_on:
+      - db
+
+  db:
+    container_name: postgres_db_dev
+    image: postgres:15
+    ports:
+      - '5433:5432'
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  pgdata:
