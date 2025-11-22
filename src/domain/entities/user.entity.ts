@@ -5,11 +5,13 @@ import { UserProfile } from './user-profile.entity';
 
 interface CreateUserProps {
   username: string;
+  password: string;
 }
 
 interface UserProps {
   id: string;
   username: string;
+  password: string;
 }
 
 @Entity()
@@ -42,6 +44,7 @@ export class User {
     return new User({
       id: nanoid(21),
       username: props.username,
+      password: props.password,
     });
   }
 
@@ -49,6 +52,7 @@ export class User {
     return new User({
       id: props.id,
       username: props.username,
+      password: props.password,
     });
   }
 

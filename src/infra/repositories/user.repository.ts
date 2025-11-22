@@ -1,16 +1,26 @@
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/entities/user.entity';
 import { Repository } from 'typeorm';
 
-export class UserRepository extends Repository<User> {
-  async findAll() {
-    return await this.find();
+export class UserRepository {
+  constructor(
+    @InjectRepository(User)
+    private readonly orm: Repository<User>,
+  ) {}
+
+  async findAll(): Promise<User[]> {
+    return await this.orm.find();
   }
 
-  async findByUsername(username: string) {
-    return await this.findOne({ where: { username } });
+  async saveOne(user: User): Promise<User> {
+    return await this.orm.save(user);
   }
 
-  async findById(id: string) {
-    return await this.findOne({ where: { id } });
+  async findByUsername(username: string): Promise<User | null> {
+    return await this.orm.findOne({ where: { username } });
+  }
+
+  async findById(id: string): Promise<User | null> {
+    return await this.orm.findOne({ where: { id } });
   }
 }

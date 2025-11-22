@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { User } from 'src/domain/entities/user.entity';
 import { UserRepository } from 'src/infra/repositories/user.repository';
 import { AuthenticateUserDto } from './dtos/authenticate-user.dto';
 import { RegisterUserDto } from './dtos/register-user.dto';
@@ -23,8 +24,8 @@ export class AuthService {
     if (!ok) throw new Error('Invalid username or password.');
 
     const token = this.jwtService.sign({
-      username: user.username,
       sub: user.id,
+      username: user.username,
     });
 
     return {
@@ -42,5 +43,15 @@ export class AuthService {
     };
   }
 
-  async register(dto: RegisterUserDto) {}
+  async register(dto: RegisterUserDto): Promise<User> {
+    const hasUser = await this.userRepo.findByUsername(dto.username);
+
+    if (hasUser) throw new Error('Invalid username. Try a different one.');
+
+    const password = await bcrypt.hash(dto.password, 10);
+
+    const user = User.create({ username: dto.username, password });
+
+    return await this.userRepo.saveOne(user);
+  }
 }
