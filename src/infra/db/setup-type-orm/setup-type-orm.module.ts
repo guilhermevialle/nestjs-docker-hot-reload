@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserProfile } from 'src/domain/entities/user-profile.entity';
+import { User } from 'src/domain/entities/user.entity';
 
 @Module({
   imports: [
@@ -12,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
+      entities: [User, UserProfile],
       migrations: ['/src/infra/db/migrations/*.ts'],
     }),
   ],
