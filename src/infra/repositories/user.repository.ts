@@ -1,4 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserProfile } from 'src/domain/entities/user-profile.entity';
 import { User } from 'src/domain/entities/user.entity';
 import { Repository } from 'typeorm';
 
@@ -22,5 +23,10 @@ export class UserRepository {
 
   async findById(id: string): Promise<User | null> {
     return await this.orm.findOne({ where: { id } });
+  }
+
+  async findProfile(userId: string): Promise<UserProfile | null> {
+    const user = await this.orm.findOne({ where: { id: userId } });
+    return user?.profile ?? null;
   }
 }

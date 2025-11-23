@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SetupTypeOrmModule } from './infra/db/setup-type-orm/setup-type-orm.module';
+import { PostgresTypeOrmModule } from './infra/db/postgres-typeorm/postgres-typeorm.module';
 import { AuthModule } from './infra/modules/auth/auth.module';
 import { UserModule } from './infra/modules/user/user.module';
 
 @Module({
-  imports: [SetupTypeOrmModule, UserModule, AuthModule],
+  imports: [PostgresTypeOrmModule, UserModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

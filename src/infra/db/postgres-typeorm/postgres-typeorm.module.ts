@@ -12,11 +12,9 @@ import { User } from 'src/domain/entities/user.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: true,
       entities: [User, UserProfile],
-      migrations: ['/src/infra/db/migrations/*.ts'],
+      autoLoadEntities: true,
     }),
   ],
 })
-export class SetupTypeOrmModule {}
+export class PostgresTypeOrmModule {}

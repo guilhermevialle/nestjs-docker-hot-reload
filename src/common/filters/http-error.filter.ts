@@ -21,6 +21,7 @@ export class HttpErrorFilter {
       statusCode: 500,
       errorCode: 'ERR_UNEXPECTED',
       message: 'Unexpected server error.',
+      stack: (exception as Error).stack,
     });
   }
 }

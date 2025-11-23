@@ -31,7 +31,10 @@ export class User {
   @IsNotEmpty()
   public password: string;
 
-  @OneToOne(() => UserProfile, (profile) => profile.user)
+  @OneToOne(() => UserProfile, (profile) => profile.user, {
+    cascade: true,
+    eager: true,
+  })
   profile: UserProfile;
 
   constructor(props: UserProps) {
@@ -59,7 +62,7 @@ export class User {
   private initProfile() {
     const profile = UserProfile.create({
       userId: this.id,
-      displayName: this.username,
+      displayName: `${this.username} at @MyApp`,
       summary: `Hello, my name is ${this.username}`,
     });
 
