@@ -1,12 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { type RedisClientType } from 'redis';
 import { ConflictError } from 'src/application/errors/conflict.error';
 import { InvalidCredentialsError } from 'src/application/errors/invalid-credentials.error';
 import { User } from 'src/domain/entities/user.entity';
-import { EmailProducer } from 'src/infra/queues/email/email.producer';
 import { UserRepository } from 'src/infra/repositories/user.repository';
 import { AuthenticateUserDto } from './dtos/authenticate-user.dto';
 import { RegisterUserDto } from './dtos/register-user.dto';
@@ -14,8 +12,6 @@ import { RegisterUserDto } from './dtos/register-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly emailProducer: EmailProducer,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
