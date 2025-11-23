@@ -11,19 +11,32 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    env_file: .env
+    env_file:
+      - .env
     command: nest start --env-file .env --watch --poll=1000
     depends_on:
       - db
+      - redis
 
   db:
     container_name: postgres_db_dev
     image: postgres:15
     ports:
       - '5433:5432'
-    env_file: .env
+    env_file:
+      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  redis:
+    container_name: redis_dev
+    image: redis:7
+    ports:
+      - '6380:6379'
+    env_file:
+      - .env
     networks:
       - internal
 

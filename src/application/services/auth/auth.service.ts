@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { type RedisClientType } from 'redis';
 import { ConflictError } from 'src/application/errors/conflict.error';
 import { InvalidCredentialsError } from 'src/application/errors/invalid-credentials.error';
 import { User } from 'src/domain/entities/user.entity';
@@ -11,9 +12,9 @@ import { RegisterUserDto } from './dtos/register-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject()
     private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
+    @Inject('RedisClient') private readonly redis: RedisClientType,
   ) {}
 
   async authenticate(dto: AuthenticateUserDto) {
@@ -31,11 +32,32 @@ export class AuthService {
       username: user.username,
     };
 
+    const cachedAccessToken = await this.redis.get(`access:${user.id}`);
+    const cachedRefreshToken = await this.redis.get(`refresh:${user.id}`);
+
+    if (cachedAccessToken && cachedRefreshToken) {
+      return {
+        user: {
+          id: user.id,
+          username: user.username,
+        },
+        auth: {
+          accessToken: cachedAccessToken,
+          refreshToken: cachedRefreshToken,
+        },
+      };
+    }
+
     const accessToken = this.jwtService.sign(payload);
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: process.env.REFRESH_SECRET,
       expiresIn: '7d',
+    });
+
+    await this.redis.set(`access:${user.id}`, accessToken, { EX: 60 * 3 });
+    await this.redis.set(`refresh:${user.id}`, refreshToken, {
+      EX: 60 * 60 * 24 * 7,
     });
 
     return {
