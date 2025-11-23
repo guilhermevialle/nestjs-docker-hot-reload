@@ -5,6 +5,7 @@ import { type RedisClientType } from 'redis';
 import { ConflictError } from 'src/application/errors/conflict.error';
 import { InvalidCredentialsError } from 'src/application/errors/invalid-credentials.error';
 import { User } from 'src/domain/entities/user.entity';
+import { MailQueueProducer } from 'src/infra/modules/mail-queue/mail-queue.producer';
 import { UserRepository } from 'src/infra/repositories/user.repository';
 import { AuthenticateUserDto } from './dtos/authenticate-user.dto';
 import { RegisterUserDto } from './dtos/register-user.dto';
@@ -12,6 +13,7 @@ import { RegisterUserDto } from './dtos/register-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly mailQueueProducer: MailQueueProducer,
     private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
     @Inject('RedisClient') private readonly redis: RedisClientType,
@@ -37,6 +39,10 @@ export class AuthService {
     const cachedRefreshToken = await this.redis.get(`refresh:${user.id}`);
 
     if (cachedAccessToken && cachedRefreshToken) {
+      await this.mailQueueProducer.warnAccessFromAnotherDevice(
+        'fake@email.com',
+      );
+
       return {
         user: {
           id: user.id,
@@ -48,6 +54,8 @@ export class AuthService {
         },
       };
     }
+
+    await this.mailQueueProducer.warnAccessFromAnotherDevice('fake@email.com');
 
     const accessToken = this.jwtService.sign(payload);
 

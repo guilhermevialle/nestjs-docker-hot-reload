@@ -3,11 +3,18 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostgresTypeOrmModule } from './infra/db/postgres-typeorm/postgres-typeorm.module';
 import { AuthModule } from './infra/modules/auth/auth.module';
+import { MailQueueModule } from './infra/modules/mail-queue/mail-queue.module';
 import { RedisModule } from './infra/modules/redis/redis.module';
 import { UserModule } from './infra/modules/user/user.module';
 
 @Module({
-  imports: [PostgresTypeOrmModule, UserModule, AuthModule, RedisModule],
+  imports: [
+    PostgresTypeOrmModule,
+    UserModule,
+    AuthModule,
+    RedisModule,
+    MailQueueModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

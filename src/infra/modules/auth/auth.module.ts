@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from 'src/application/services/auth/auth.service';
 import { JwtStrategy } from 'src/infra/auth/strategies/jwt.strategy';
 import { AuthController } from 'src/infra/http/controllers/auth/auth.controller';
+import { MailQueueModule } from '../mail-queue/mail-queue.module';
 import { RedisModule } from '../redis/redis.module';
 import { UserModule } from '../user/user.module';
 
@@ -16,6 +17,7 @@ import { UserModule } from '../user/user.module';
       secret: process.env.JWT_SECRET!,
       signOptions: { expiresIn: '3m' },
     }),
+    MailQueueModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
