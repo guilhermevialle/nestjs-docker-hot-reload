@@ -26,22 +26,26 @@ export class AuthService {
 
     if (!ok) throw new InvalidCredentialsError(`Invalid username or password.`);
 
-    const token = this.jwtService.sign({
+    const payload = {
       sub: user.id,
       username: user.username,
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.REFRESH_SECRET,
+      expiresIn: '7d',
     });
 
     return {
       user: {
         id: user.id,
         username: user.username,
-        profile: {
-          displayName: user.profile.displayName,
-          summary: user.profile.summary,
-        },
       },
       auth: {
-        token,
+        accessToken,
+        refreshToken,
       },
     };
   }
