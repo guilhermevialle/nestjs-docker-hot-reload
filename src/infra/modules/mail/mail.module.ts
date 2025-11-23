@@ -1,20 +1,18 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
+import 'dotenv/config';
 import { MailService } from 'src/application/services/mail/mail.service';
 
 @Module({
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: process.env.MAIL_HOST,
-        port: Number(process.env.MAIL_PORT),
         secure: false,
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT),
         auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASS,
-        },
-        defaults: {
-          from: 'my-app@mail.com',
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
         },
       },
     }),
