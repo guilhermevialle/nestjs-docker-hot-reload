@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { type RedisClientType } from 'redis';
@@ -12,7 +12,6 @@ import { RegisterUserDto } from './dtos/register-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly logger: Logger,
     private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
     @Inject('RedisClient') private readonly redis: RedisClientType,
@@ -22,10 +21,6 @@ export class AuthService {
     const user = await this.userRepo.findByUsername(dto.username);
 
     if (!user) {
-      this.logger.warn('Login failed: user not found', {
-        username: dto.username,
-      });
-
       throw new InvalidCredentialsError(`Invalid username or password.`);
     }
 
