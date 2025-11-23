@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { type RedisClientType } from 'redis';
@@ -12,6 +12,8 @@ import { RegisterUserDto } from './dtos/register-user.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly mailQueueProducer: MailQueueProducer,
     private readonly userRepo: UserRepository,
@@ -39,9 +41,14 @@ export class AuthService {
     const cachedRefreshToken = await this.redis.get(`refresh:${user.id}`);
 
     if (cachedAccessToken && cachedRefreshToken) {
-      await this.mailQueueProducer.warnAccessFromAnotherDevice(
-        'fake@email.com',
-      );
+      this.logger.debug('[AuthService]: Authenticate user using cached token');
+
+      await this.mailQueueProducer.warnAccessFromAnotherDevice({
+        email: `fake@email.com`,
+        ipAddress: 'fake:ip:address',
+        userAgent: 'fake:user:agent',
+        occurredAt: new Date(),
+      });
 
       return {
         user: {
@@ -55,7 +62,14 @@ export class AuthService {
       };
     }
 
-    await this.mailQueueProducer.warnAccessFromAnotherDevice('fake@email.com');
+    this.logger.debug('[AuthService]: Authenticate user using cached token');
+
+    await this.mailQueueProducer.warnAccessFromAnotherDevice({
+      email: `fake@email.com`,
+      ipAddress: 'fake:ip:address',
+      userAgent: 'fake:user:agent',
+      occurredAt: new Date(),
+    });
 
     const accessToken = this.jwtService.sign(payload);
 
