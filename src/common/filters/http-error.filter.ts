@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch } from '@nestjs/common';
+import { ArgumentsHost, BadRequestException, Catch } from '@nestjs/common';
 import { Response } from 'express';
 import { ApplicationError } from 'src/application/errors/application.error';
 
@@ -14,6 +14,15 @@ export class HttpErrorFilter {
         statusCode: exception.statusCode,
         errorCode: exception.errorCode,
         timestamp: exception.occurredAt,
+      });
+    }
+
+    if (exception instanceof BadRequestException) {
+      const res: any = exception.getResponse();
+      return response.status(400).json({
+        statusCode: 400,
+        errorCode: 'ERR_BAD_REQUEST',
+        errors: res.message,
       });
     }
 
